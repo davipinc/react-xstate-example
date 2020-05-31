@@ -1,14 +1,13 @@
 import { Machine, assign } from 'xstate';
-import reactjsPosts from '../mocks/reactjs.json';
-
-const useMocks = false;
+// import reactjsPosts from '../mocks/reactjs.json';
+//const useMocks = false;
 
 async function invokeFetchSubreddit(context) {
   const { subreddit } = context;
 
-  if (useMocks) {
-    return reactjsPosts.data.children.map(child => child.data);
-  }
+  // if (useMocks) {
+  //   return reactjsPosts.data.children.map(child => child.data);
+  // }
  
   const response = await fetch(`https://www.reddit.com/r/${subreddit}.json`)
   const json = await response.json();
