@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMachine } from '@xstate/react';
-import redditMachine from './redditMachine.js';
+import { redditMachine } from './state/redditMachine.js';
 import Subreddit from './components/Subreddit.js';
 
 const subreddits = ['frontend', 'reactjs', 'vuejs'];
@@ -14,15 +14,20 @@ const App = () => {
       <header>
         <select
           onChange={e => {
-            send('SELECT', { name: e.target.value });
+            const subreddit = e.target.value;
+            if (subreddit === '') {
+              return;
+            }
+            send('SELECT', { name: subreddit });
           }}
         >
+          <option key="none" value="">Choose a subreddit</option>
           {subreddits.map(subreddit => {
             return <option key={subreddit}>{subreddit}</option>;
           })}
         </select>
       </header>
-      {subreddit && <Subreddit name={subreddit} key={subreddit.id} />}
+      {subreddit && <Subreddit service={subreddit} key={subreddit.id} />}
     </main>
   );
 };

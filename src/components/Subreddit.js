@@ -1,53 +1,8 @@
-import React, { useMemo } from 'react';
-import { useMachine } from '@xstate/react';
-import { Machine, assign } from 'xstate';
-import redditFetch from '../api/redditFetch.js';
+import React from 'react';
+import { useService } from '@xstate/react';
 
-const createSubredditMachine = subreddit => {
-  return Machine({
-    id: 'subreddit',
-    initial: 'loading',
-    context: {
-      subreddit, // subreddit name passed in
-      posts: null,
-      lastUpdated: null
-    },
-    states: {
-      loading: {
-        invoke: {
-          id: 'fetch-subreddit',
-          src: redditFetch,
-          onDone: {
-            target: 'loaded',
-            actions: assign({
-              posts: (_, event) => event.data,
-              lastUpdated: () => Date.now()
-            })
-          },
-          onError: 'failure'
-        }
-      },
-      loaded: {
-        on: {
-          REFRESH: 'loading'
-        }
-      },
-      failure: {
-        on: {
-          RETRY: 'loading'
-        }
-      }
-    }
-  });
-};
-
-const Subreddit = ({ name }) => {
-  // Only create the machine based on the subreddit name once
-  const subredditMachine = useMemo(() => {
-    return createSubredditMachine(name);
-  }, [name]);
-
-  const [current, send] = useMachine(subredditMachine);
+const Subreddit = ({ service  }) => {
+  const [current, send] = useService(service);
 
   if (current.matches('failure')) {
     return (
@@ -62,7 +17,6 @@ const Subreddit = ({ name }) => {
 
   return (
     <section
-      data-machine={subredditMachine.id}
       data-state={current.toStrings().join(' ')}
     >
       {current.matches('loading') && <div>Loading posts...</div>}
